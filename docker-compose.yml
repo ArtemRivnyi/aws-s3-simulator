@@ -1,19 +1,29 @@
+version: '3.8'
+
 services:
   minio:
     image: minio/minio:latest
-    container_name: minio-s3-simulator
-    ports:
-      - "9000:9000"  # S3 API port
-      - "9090:9090"  # Web UI port (changed from 9001 to avoid Windows conflicts)
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: password123
+    container_name: aws-s3-simulator
     command: server /data --console-address ":9090"
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9090}:9090"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-password123}
+      MINIO_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
     volumes:
-      - "./minio_data:/data"
+      - ${MINIO_DATA_PATH:-./minio_data}:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     restart: unless-stopped
+    networks:
+      - s3-network
+
+networks:
+  s3-network:
+    driver: bridge

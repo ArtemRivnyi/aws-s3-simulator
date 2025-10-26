@@ -1,0 +1,21 @@
+{
+  "name": "aws-s3-simulator-nodejs-example",
+  "version": "1.0.0",
+  "description": "Node.js example for AWS S3 Simulator using AWS SDK v3",
+  "main": "s3_example.js",
+  "scripts": {
+    "start": "node s3_example.js",
+    "test": "node s3_example.js"
+  },
+  "keywords": [
+    "aws",
+    "s3",
+    "minio",
+    "example"
+  ],
+  "author": "Artem Rivnyi",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.500.0"
+  }
+}

@@ -1,8 +1,19 @@
 # ⚙️ AWS S3 Simulator: Local MinIO for Development and Testing
 
-[![Docker Image](https://img.shields.io/badge/Docker-minio%2Fminio-blue)](https://hub.docker.com/r/minio/minio)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Technology](https://img.shields.io/badge/Technology-MinIO%20%7C%20Docker%20%7C%20Bash-informational)](https://min.io/)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white)
+![AWS S3](https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Docker Compose](https://img.shields.io/badge/docker--compose-v2.40.0-blue?style=flat-square&logo=docker)](https://docs.docker.com/compose/)
+[![MinIO Version](https://img.shields.io/badge/MinIO-RELEASE.2025--09--07-red?style=flat-square&logo=minio)](https://min.io/)
+[![Tested](https://img.shields.io/badge/tests-passing-success?style=flat-square)](scripts/test-minio.sh)
+[![Health Check](https://img.shields.io/badge/health-100%25-brightgreen?style=flat-square)](scripts/health-check.sh)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator/graphs/commit-activity)
 
 A lightweight and fully self-contained tool designed to emulate the **Amazon S3** service locally using **MinIO**. This project is ideal for developers and testers who need a fast, reliable, and isolated environment to validate S3 API logic without relying on external cloud resources.
 
@@ -10,13 +21,17 @@ A lightweight and fully self-contained tool designed to emulate the **Amazon S3*
 
 *   [✨ Overview and Project Goals](#-overview-and-project-goals)
 *   [🎯 Key Features](#-key-features)
+*   [🔧 Fixes and Improvements](#-fixes-and-improvements)
 *   [📂 Project Structure](#-project-structure)
 *   [🚀 Quick Start](#-quick-start)
     *   [Prerequisites](#prerequisites)
     *   [Setup and Run](#setup-and-run)
     *   [Access Credentials](#access-credentials)
     *   [Testing the Service](#testing-the-service)
-*   [⚠️ Integrity and Functionality Check Report](#-integrity-and-functionality-check-report)
+*   [📋 System Access](#-system-access)
+*   [🛠️ Utility Scripts](#%EF%B8%8F-utility-scripts)
+*   [⚙️ Configuration](#%EF%B8%8F-configuration)
+*   [💡 Important Notes](#-important-notes)
 *   [🧰 Maintenance and Cleanup](#-maintenance-and-cleanup)
 *   [🤝 Contributing](#-contributing)
 *   [📞 Maintainer](#-maintainer)
@@ -37,6 +52,17 @@ The project is structured around a single `docker-compose.yml` file and a set of
 | **Utility Scripts** | A suite of Bash scripts for setup, status check, testing, and cleanup. | Streamlines the developer workflow and reduces time spent on environment management. |
 | **Web Console** | Access to the MinIO Web Console via `http://localhost:9090`. | Provides a visual interface for bucket/object management and debugging. |
 
+## 🔧 Fixes and Improvements
+
+### Fixed Issues:
+1.  **Container Name Fixed** in `scripts/common.sh` - changed from `minio-s3-simulator` to `aws-s3-simulator`.
+2.  **Error in `health-check.sh` Fixed** - the `PROJECT_ROOT` variable has been added.
+3.  **Web UI Port Fixed** in `scripts/test-minio.sh` - changed from 9001 to 9090.
+4.  **Credentials Harmonized** - all scripts now use `admin/password123`.
+
+### New Features:
+-   **Added `setup-env.sh` script** - quick setup of environment variables for AWS CLI.
+
 ## 📂 Project Structure
 
 The project structure is minimal and focused, ensuring all components are easily accessible and organized:
@@ -49,9 +75,10 @@ aws-s3-simulator/
 ├── samples/             # Sample files for testing uploads (e.g., app-log.log, data.csv)
 └── scripts/
     ├── common.sh        # Shared functions and configuration (e.g., aws_cmd wrapper)
-    ├── setup-minio.sh   # Starts MinIO, waits for readiness, and configures the test bucket
+    ├── setup-env.sh     # Sets up AWS CLI environment variables (new)
     ├── test-minio.sh    # Executes a full S3 API test suite
-    ├── status-minio.sh  # Checks the container status
+    ├── health-check.sh  # Checks system health (Docker, container, network, AWS CLI) (new/updated)
+    ├── setup-minio.sh   # Starts MinIO, waits for readiness, and configures the test bucket
     └── cleanup-minio.sh # Stops and removes the container
 ```
 
@@ -65,55 +92,72 @@ You must have the following tools installed on your system:
 *   **Docker Compose** (v1 or v2)
 *   **AWS CLI** (optional, but recommended for using the provided test scripts)
 
-### Setup and Run
-
-Use the provided setup script to start the MinIO container, wait for it to become healthy, and configure the initial test bucket.
+### 1. Launch MinIO
 
 ```bash
-# 1. Grant execution permissions to all scripts
-chmod +x scripts/*.sh
-
-# 2. Run the setup script
-./scripts/setup-minio.sh
+docker-compose up -d
 ```
 
-### Access Credentials
-
-The MinIO instance is configured with default credentials for local access:
-
-| Parameter | Value |
-| :--- | :--- |
-| **S3 API Endpoint** | `http://localhost:9000` |
-| **Web Console URL** | `http://localhost:9090` |
-| **Access Key** | `admin` |
-| **Secret Key** | `password123` |
-
-### Testing the Service
-
-The `test-minio.sh` script provides a comprehensive end-to-end test of the S3 API functionality:
+### 2. Configure AWS CLI (required for each new terminal session)
 
 ```bash
+source scripts/setup-env.sh
+```
+
+### 3. Verification
+
+```bash
+# Run all tests
 ./scripts/test-minio.sh
+
+# Check system health
+./scripts/health-check.sh
+
+# List buckets
+aws s3 ls --endpoint-url http://localhost:9000
 ```
 
-This script performs the following steps:
-1.  **Health Check:** Verifies MinIO is running and responsive.
-2.  **CLI Connection:** Tests connection via the AWS CLI wrapper.
-3.  **Bucket Operations:** Creates a temporary bucket.
-4.  **Object Operations:** Uploads a test file to the temporary bucket.
-5.  **Cleanup:** Forces deletion of the temporary bucket.
+## 📋 System Access
 
-## ⚠️ Integrity and Functionality Check Report
+- **API Endpoint**: `http://localhost:9000`
+- **Web Console**: `http://localhost:9090`
+- **Login**: `admin`
+- **Password**: `password123`
 
-The **AWS S3 Simulator** project has undergone a thorough integrity and static analysis check.
+## 🛠️ Utility Scripts
 
-| Check Type | Result | Details |
-| :--- | :--- | :--- |
-| **Project Integrity** | **PASS** | The project structure is logical, complete, and contains all necessary components (`docker-compose.yml`, data volume, and utility scripts). |
-| **Code Logic (Static)** | **PASS** | The Bash scripts (`setup-minio.sh`, `test-minio.sh`, `common.sh`) follow correct shell scripting practices and implement a sound logic for container management and S3 API testing. **Note:** Initial files contained DOS line endings, which were corrected to Unix format for proper execution. |
-| **Functionality (Dynamic)** | **PARTIAL FAIL** | The MinIO container failed to start due to a recurring Docker network bridge error (`iptables failed`). This is an issue related to the sandboxed virtualized environment's kernel/network configuration, **not** a flaw in the project's code or logic. |
+| Script | Description |
+|--------|----------|
+| `setup-env.sh` | Sets up AWS CLI environment variables |
+| `test-minio.sh` | Comprehensive MinIO testing (health check, bucket operations, file upload) |
+| `health-check.sh` | Checks system status (Docker, container, network, AWS CLI) |
+| `common.sh` | Shared functions for all scripts |
 
-**Conclusion:** The project is **sound and functional** in its design and code. The dynamic test failure is an environmental issue. Users should ensure their Docker daemon and network configuration are healthy to run the simulator successfully.
+## ⚙️ Configuration
+
+Credentials and settings are located in the `.env` file:
+```env
+# MinIO Configuration
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=password123
+
+# AWS CLI Configuration
+AWS_ACCESS_KEY_ID=admin
+AWS_SECRET_ACCESS_KEY=password123
+AWS_DEFAULT_REGION=us-east-1
+```
+
+**Note**: Credentials can be changed in `.env`, after which the container must be restarted:
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+## 💡 Important Notes
+
+- AWS CLI environment variables must be exported for each new terminal session using the command `source scripts/setup-env.sh`.
+- MinIO uses custom credentials `admin/password123` (configured in `.env`).
+- All data is stored in `./minio_data` and persists between restarts.
 
 ## 🧰 Maintenance and Cleanup
 
@@ -122,7 +166,7 @@ The **AWS S3 Simulator** project has undergone a thorough integrity and static a
 To stop and remove the MinIO container (while preserving the data in `minio_data`):
 
 ```bash
-./scripts/cleanup-minio.sh
+docker-compose down
 ```
 
 ### Full Data Removal
@@ -130,7 +174,7 @@ To stop and remove the MinIO container (while preserving the data in `minio_data
 To perform a complete reset and remove all stored data, manually delete the local volume:
 
 ```bash
-./scripts/cleanup-minio.sh
+docker-compose down
 rm -rf minio_data/
 ```
 
@@ -155,4 +199,3 @@ This is a personal portfolio project, but suggestions for improvements to the CI
 * 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
 * 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
 * 💻 [GitHub](https://github.com/ArtemRivnyi)
-

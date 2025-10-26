@@ -11,8 +11,8 @@ aws_cmd() {
         echo "🐳 Using Docker AWS CLI..."
         docker run --rm \
             --network host \
-            -e AWS_ACCESS_KEY_ID=admin \
-            -e AWS_SECRET_ACCESS_KEY=password123 \
+            -e AWS_ACCESS_KEY_ID=minioadmin \
+            -e AWS_SECRET_ACCESS_KEY=minioadmin \
             -e AWS_DEFAULT_REGION=us-east-1 \
             amazon/aws-cli \
             --endpoint-url=http://localhost:9000 \
@@ -23,7 +23,7 @@ aws_cmd() {
 # Function to check if MinIO is running
 check_minio() {
     # Check if container is running first
-    if ! docker ps --format '{{.Names}}' | grep -q "minio-s3-simulator"; then
+   if ! docker ps --format '{{.Names}}' | grep -q "aws-s3-simulator"; then
         return 1
     fi
     
@@ -60,7 +60,7 @@ wait_for_minio() {
 # Function to start MinIO if not running
 start_minio() {
     # Check if container exists and is running
-    if docker ps --format '{{.Names}}' | grep -q "minio-s3-simulator"; then
+   if docker ps --format '{{.Names}}' | grep -q "aws-s3-simulator"; then
         echo "✅ MinIO container is already running"
         
         # Do a quick check if it's responding

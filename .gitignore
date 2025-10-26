@@ -1,41 +1,74 @@
-# --------------------------------------------------
-# .gitignore for AWS S3 Simulator (MinIO + Docker)
-# --------------------------------------------------
-
-# 1. MinIO Data and Configuration
-# The 'minio_data' directory is the persistent volume for MinIO.
-# It contains the actual S3 data and should never be committed.
-minio_data/
-
-# Generated files by the scripts
-*.log
-*.tmp
-.s3_bucket_name.txt
-
-# 2. Docker
-# Ignore all Docker-related build/runtime files
-# The container itself is ephemeral, but we ignore any local build context or logs
-# Ignore the generated docker-compose environment file if one were used (none here, but good practice)
+# Environment variables
 .env
-.dockerignore
+.env.local
+.env.*.local
 
-# 3. Operating System and Editor Files
-# macOS
+# MinIO data directory
+minio_data/
+!minio_data/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS generated files
 .DS_Store
-
-# Linux
-*~
-\#*#
-.fuse_hidden*
-.directory
-
-# Windows
-Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 ehthumbs.db
+Thumbs.db
 
-# IDE/Editor files (common)
-.idea/
+# IDE
 .vscode/
-.history/
+.idea/
 *.swp
+*.swo
+*.swn
+*~
+.project
+.classpath
+.settings/
 
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# Test artifacts
+test-results/
+coverage/
+*.test
+
+# Docker volumes (if using named volumes)
+volumes/
+
+# Node.js (for examples)
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (for examples)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Downloaded/generated test files
+examples/**/*.txt
+examples/**/test_*
+examples/**/downloaded_*
+
+# Build artifacts
+dist/
+build/
