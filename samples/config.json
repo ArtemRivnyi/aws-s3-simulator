@@ -1,0 +1,8 @@
+{
+    "project": "AWS S3 Simulator",
+    "version": "1.0.0",
+    "environment": "development",
+    "storage": "minio",
+    "endpoint": "http://localhost:9000",
+    "bucket": "my-bucket-1761478199"
+}

@@ -1,0 +1,41 @@
+# --------------------------------------------------
+# .gitignore for AWS S3 Simulator (MinIO + Docker)
+# --------------------------------------------------
+
+# 1. MinIO Data and Configuration
+# The 'minio_data' directory is the persistent volume for MinIO.
+# It contains the actual S3 data and should never be committed.
+minio_data/
+
+# Generated files by the scripts
+*.log
+*.tmp
+.s3_bucket_name.txt
+
+# 2. Docker
+# Ignore all Docker-related build/runtime files
+# The container itself is ephemeral, but we ignore any local build context or logs
+# Ignore the generated docker-compose environment file if one were used (none here, but good practice)
+.env
+.dockerignore
+
+# 3. Operating System and Editor Files
+# macOS
+.DS_Store
+
+# Linux
+*~
+\#*#
+.fuse_hidden*
+.directory
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# IDE/Editor files (common)
+.idea/
+.vscode/
+.history/
+*.swp
+
