@@ -14,6 +14,7 @@
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator/graphs/commit-activity)
+[![Tests](https://github.com/ArtemRivnyi/aws-s3-simulator/workflows/Test%20MinIO%20Setup/badge.svg)](https://github.com/ArtemRivnyi/aws-s3-simulator/actions)
 
 A lightweight and fully self-contained tool designed to emulate the **Amazon S3** service locally using **MinIO**. This project is ideal for developers and testers who need a fast, reliable, and isolated environment to validate S3 API logic without relying on external cloud resources.
 
@@ -34,6 +35,7 @@ A lightweight and fully self-contained tool designed to emulate the **Amazon S3*
 *   [💡 Important Notes](#-important-notes)
 *   [🧰 Maintenance and Cleanup](#-maintenance-and-cleanup)
 *   [🤝 Contributing](#-contributing)
+*   [📜 Changelog](#-changelog)
 *   [📞 Maintainer](#-maintainer)
 
 ## ✨ Overview and Project Goals
@@ -51,6 +53,7 @@ The project is structured around a single `docker-compose.yml` file and a set of
 | **Pre-loaded Data** | Includes the `minio_data` folder with a pre-configured test bucket and sample files. | Allows immediate testing without manual data upload. |
 | **Utility Scripts** | A suite of Bash scripts for setup, status check, testing, and cleanup. | Streamlines the developer workflow and reduces time spent on environment management. |
 | **Web Console** | Access to the MinIO Web Console via `http://localhost:9090`. | Provides a visual interface for bucket/object management and debugging. |
+| **Project Cleanup** | Improved `cleanup-minio.sh` script with an interactive menu. | Offers safer and more controlled environment teardown. |
 
 ## 🔧 Fixes and Improvements
 
@@ -73,13 +76,16 @@ aws-s3-simulator/
 ├── minio_data/          # Local volume for persistent MinIO data storage
 │   └── my-bucket-1761478199/ # Example pre-loaded bucket
 ├── samples/             # Sample files for testing uploads (e.g., app-log.log, data.csv)
+├── LICENSE              # Project license (MIT)
+├── CHANGELOG.md         # History of changes and releases
+├── .gitignore           # Specifies intentionally untracked files to ignore (e.g., minio_data/, .env)
 └── scripts/
     ├── common.sh        # Shared functions and configuration (e.g., aws_cmd wrapper)
     ├── setup-env.sh     # Sets up AWS CLI environment variables (new)
     ├── test-minio.sh    # Executes a full S3 API test suite
     ├── health-check.sh  # Checks system health (Docker, container, network, AWS CLI) (new/updated)
     ├── setup-minio.sh   # Starts MinIO, waits for readiness, and configures the test bucket
-    └── cleanup-minio.sh # Stops and removes the container
+    └── cleanup-minio.sh # Stops and removes the container with an interactive menu for data removal
 ```
 
 ## 🚀 Quick Start
@@ -132,6 +138,7 @@ aws s3 ls --endpoint-url http://localhost:9000
 | `test-minio.sh` | Comprehensive MinIO testing (health check, bucket operations, file upload) |
 | `health-check.sh` | Checks system status (Docker, container, network, AWS CLI) |
 | `common.sh` | Shared functions for all scripts |
+| `cleanup-minio.sh` | Stops and removes the container with an interactive menu for data removal |
 
 ## ⚙️ Configuration
 
@@ -161,21 +168,12 @@ docker-compose up -d
 
 ## 🧰 Maintenance and Cleanup
 
-### Stopping the Container
+The `scripts/cleanup-minio.sh` script now provides an interactive menu for safely stopping the container and optionally removing the persistent data.
 
-To stop and remove the MinIO container (while preserving the data in `minio_data`):
-
-```bash
-docker-compose down
-```
-
-### Full Data Removal
-
-To perform a complete reset and remove all stored data, manually delete the local volume:
+### Using the Cleanup Script
 
 ```bash
-docker-compose down
-rm -rf minio_data/
+./scripts/cleanup-minio.sh
 ```
 
 ### Troubleshooting
@@ -187,6 +185,10 @@ docker-compose logs -f
 ```
 
 ---
+
+## 📜 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
 
 ## 🤝 Contributing
 This is a personal portfolio project, but suggestions for improvements to the CI/CD pipeline or code structure are welcome.

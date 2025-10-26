@@ -1,0 +1,38 @@
+name: Test MinIO Setup
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Start MinIO
+      run: |
+        docker-compose up -d
+        sleep 10
+    
+    - name: Run health check
+      run: |
+        chmod +x scripts/health-check.sh
+        ./scripts/health-check.sh
+    
+    - name: Run tests
+      run: |
+        chmod +x scripts/test-minio.sh
+        source scripts/setup-env.sh
+        ./scripts/test-minio.sh
+    
+    - name: Cleanup
+      if: always()
+      run: docker-compose down -v

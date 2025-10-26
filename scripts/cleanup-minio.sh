@@ -10,90 +10,102 @@ source "$SCRIPT_DIR/common.sh"
 # Change to project directory
 cd "$PROJECT_DIR"
 
-# Get bucket name
-BUCKET_NAME=$(get_bucket_name)
-
-echo "🧹 Cleaning up resources..."
+echo "🧹 AWS S3 Simulator - Cleanup Tool"
+echo "===================================="
 echo ""
-
-# Ask for confirmation
-read -p "⚠️  This will delete all data and stop MinIO. Continue? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Cleanup cancelled"
-    exit 1
-fi
-
-# Delete bucket if exists
-if [ -n "$BUCKET_NAME" ]; then
-    echo "🗑️  Deleting bucket: $BUCKET_NAME"
-    aws_cmd s3 rb s3://$BUCKET_NAME --force 2>/dev/null || echo "Bucket already deleted or doesn't exist"
-    rm -f .s3_bucket_name.txt
-fi
-
-# Remove sample files
-echo "🗑️  Removing sample files..."
-rm -rf samples/
-
-# Stop MinIO
-echo "🐳 Stopping MinIO..."
-docker-compose down
-
-# Remove MinIO data
-echo "🗑️  Removing MinIO data..."
-rm -rf minio_data/
-
+echo "Select cleanup option:"
+echo "  1) Delete all buckets (keep MinIO running)"
+echo "  2) Delete all buckets and stop MinIO"
+echo "  3) Full cleanup (buckets + data + stop MinIO)"
+echo "  4) Cancel"
 echo ""
-echo "✅ Cleanup completed successfully!"
-echo ""
-echo "💡 To start again, run: ./scripts/setup-minio.sh"
-```
+read -p "Enter option (1-4): " option
 
-## 9. .gitignore
-```
-# MinIO data directory
-minio_data/
-
-# Sample files directory
-samples/
-
-# Downloads directory
-downloads/
-
-# Bucket name tracking file
-.s3_bucket_name.txt
-
-# Demo files
-demo_file.txt
-downloaded_demo_file.txt
-
-# Node.js
-node_modules/
-package-lock.json
-
-# Python
-__pycache__/
-*.py[cod]
-.Python
-venv/
-
-# OS files
-.DS_Store
-Thumbs.db
-*~
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.temp
-
-# Environment files
-.env
-.env.local
+case $option in
+    1)
+        echo ""
+        echo "🗑️  Option 1: Deleting all buckets..."
+        setup_environment
+        
+        echo "📋 Current buckets:"
+        aws_cmd s3 ls
+        echo ""
+        
+        read -p "⚠️  Confirm deletion? (yes/no): " confirm
+        if [ "$confirm" = "yes" ]; then
+            for bucket in $(aws_cmd s3 ls | awk '{print $3}'); do
+                echo "   Deleting bucket: $bucket"
+                aws_cmd s3 rb s3://$bucket --force 2>/dev/null || true
+            done
+            rm -f .s3_bucket_name.txt
+            echo "✅ Buckets deleted!"
+        else
+            echo "❌ Cancelled"
+        fi
+        ;;
+        
+    2)
+        echo ""
+        echo "🗑️  Option 2: Deleting buckets and stopping MinIO..."
+        setup_environment
+        
+        # Delete buckets
+        for bucket in $(aws_cmd s3 ls 2>/dev/null | awk '{print $3}'); do
+            echo "   Deleting bucket: $bucket"
+            aws_cmd s3 rb s3://$bucket --force 2>/dev/null || true
+        done
+        rm -f .s3_bucket_name.txt
+        
+        # Stop MinIO
+        echo "🐳 Stopping MinIO..."
+        docker-compose down
+        
+        echo "✅ Cleanup completed!"
+        ;;
+        
+    3)
+        echo ""
+        echo "🗑️  Option 3: Full cleanup..."
+        echo ""
+        read -p "⚠️  This will delete ALL data and stop MinIO. Continue? (yes/no): " confirm
+        
+        if [ "$confirm" = "yes" ]; then
+            # Delete buckets
+            setup_environment
+            for bucket in $(aws_cmd s3 ls 2>/dev/null | awk '{print $3}'); do
+                echo "   Deleting bucket: $bucket"
+                aws_cmd s3 rb s3://$bucket --force 2>/dev/null || true
+            done
+            
+            # Remove sample files
+            echo "🗑️  Removing sample files..."
+            rm -rf samples/ downloads/
+            rm -f .s3_bucket_name.txt demo_file.txt downloaded_demo_file.txt
+            
+            # Stop MinIO
+            echo "🐳 Stopping MinIO..."
+            docker-compose down
+            
+            # Remove MinIO data
+            echo "🗑️  Removing MinIO data..."
+            rm -rf minio_data/
+            
+            echo ""
+            echo "✅ Full cleanup completed!"
+            echo ""
+            echo "💡 To start again, run: docker-compose up -d"
+        else
+            echo "❌ Cancelled"
+        fi
+        ;;
+        
+    4)
+        echo "❌ Cleanup cancelled"
+        exit 0
+        ;;
+        
+    *)
+        echo "❌ Invalid option"
+        exit 1
+        ;;
+esac

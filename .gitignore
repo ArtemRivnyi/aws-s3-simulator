@@ -72,3 +72,31 @@ examples/**/downloaded_*
 # Build artifacts
 dist/
 build/
+# MinIO data
+minio_data/
+
+# Environment variables
+.env
+
+# Temporary files
+*.tmp
+.s3_bucket_name.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
