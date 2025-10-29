@@ -23,7 +23,6 @@ A lightweight and fully self-contained tool designed to emulate the **Amazon S3*
 *   [✨ Overview and Project Goals](#-overview-and-project-goals)
 *   [🎯 Key Features](#-key-features)
 *   [🔧 Fixes and Improvements](#-fixes-and-improvements)
-*   [📂 Project Structure](#-project-structure)
 *   [🚀 Quick Start](#-quick-start)
     *   [Prerequisites](#prerequisites)
     *   [Setup and Run](#setup-and-run)
@@ -66,28 +65,6 @@ The project is structured around a single `docker-compose.yml` file and a set of
 
 ### New Features:
 -   **Added `setup-env.sh` script** - quick setup of environment variables for AWS CLI.
-
-## 📂 Project Structure
-
-The project structure is minimal and focused, ensuring all components are easily accessible and organized:
-
-```
-aws-s3-simulator/
-├── docker-compose.yml   # Defines the MinIO service and ports
-├── minio_data/          # Local volume for persistent MinIO data storage
-│   └── my-bucket-1761478199/ # Example pre-loaded bucket
-├── samples/             # Sample files for testing uploads (e.g., app-log.log, data.csv)
-├── LICENSE              # Project license (MIT)
-├── CHANGELOG.md         # History of changes and releases
-├── .gitignore           # Specifies intentionally untracked files to ignore (e.g., minio_data/, .env)
-└── scripts/
-    ├── common.sh        # Shared functions and configuration (e.g., aws_cmd wrapper)
-    ├── setup-env.sh     # Sets up AWS CLI environment variables (new)
-    ├── test-minio.sh    # Executes a full S3 API test suite
-    ├── health-check.sh  # Checks system health (Docker, container, network, AWS CLI) (new/updated)
-    ├── setup-minio.sh   # Starts MinIO, waits for readiness, and configures the test bucket
-    └── cleanup-minio.sh # Stops and removes the container with an interactive menu for data removal
-```
 
 ## 🚀 Quick Start
 
