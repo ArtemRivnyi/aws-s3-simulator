@@ -36,6 +36,7 @@ A lightweight and fully self-contained tool designed to emulate the **Amazon S3*
 *   [🧰 Maintenance and Cleanup](#-maintenance-and-cleanup)
 *   [🤝 Contributing](#-contributing)
 *   [📜 Changelog](#-changelog)
+*   [📄 License](#-license)
 *   [📞 Maintainer](#-maintainer)
 
 ## ✨ Overview and Project Goals
@@ -192,6 +193,10 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
 
 ## 🤝 Contributing
 This is a personal portfolio project, but suggestions for improvements to the CI/CD pipeline or code structure are welcome.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 📞 Maintainer
 
