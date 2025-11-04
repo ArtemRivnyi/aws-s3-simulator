@@ -1,20 +1,19 @@
 # ⚙️ AWS S3 Simulator: Local MinIO for Development and Testing
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white)
-![AWS S3](https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
+![tests](https://img.shields.io/badge/tests-passing-28A745?style=flat-square )
+![health](https://img.shields.io/badge/health-100%25-28A745?style=flat-square )
+![Test MinIO Setup](https://img.shields.io/badge/Test%20MinIO%20Setup-passing-28A745?style=flat-square )
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Docker Compose](https://img.shields.io/badge/docker--compose-v2.40.0-blue?style=flat-square&logo=docker)](https://docs.docker.com/compose/)
-[![MinIO Version](https://img.shields.io/badge/MinIO-RELEASE.2025--09--07-red?style=flat-square&logo=minio)](https://min.io/)
-[![Tested](https://img.shields.io/badge/tests-passing-success?style=flat-square)](scripts/test-minio.sh)
-[![Health Check](https://img.shields.io/badge/health-100%25-brightgreen?style=flat-square)](scripts/health-check.sh)
-[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator/graphs/commit-activity)
-[![Tests](https://github.com/ArtemRivnyi/aws-s3-simulator/workflows/Test%20MinIO%20Setup/badge.svg)](https://github.com/ArtemRivnyi/aws-s3-simulator/actions)
+![Docker](https://img.shields.io/badge/Containerization-Docker-2496ED?style=flat-square&logo=docker&logoColor=white )
+![MinIO](https://img.shields.io/badge/Storage-MinIO-FF6A00?style=flat-square&logo=minio&logoColor=white )
+![AWS S3](https://img.shields.io/badge/Compatibility-AWS%20S3-FF9900?style=flat-square&logo=amazon-aws&logoColor=white )
+![Python](https://img.shields.io/badge/Language-Python-3776AB?style=flat-square&logo=python&logoColor=white )
+![Bash](https://img.shields.io/badge/Scripting-Bash-121011?style=flat-square&logo=gnu-bash&logoColor=white )
+![docker-compose](https://img.shields.io/badge/Orchestration-docker--compose-2496ED?style=flat-square&logo=docker&logoColor=white )
+
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg )](https://opensource.org/licenses/MIT )
+![MinIO Release](https://img.shields.io/badge/MinIO%20Release-2025--09--07-E91E63?style=flat-square )
+![platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-555555?style=flat-square )
 [![Last Commit](https://img.shields.io/github/last-commit/ArtemRivnyi/aws-s3-simulator?label=Last%20Update&style=flat-square )](https://github.com/ArtemRivnyi/aws-s3-simulator/commits/main )
 [![GitHub Stars](https://img.shields.io/github/stars/ArtemRivnyi/aws-s3-simulator?style=social )](https://github.com/ArtemRivnyi/aws-s3-simulator/stargazers )
 
