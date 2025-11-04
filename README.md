@@ -15,6 +15,8 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg?style=flat-square)](https://github.com/ArtemRivnyi/aws-s3-simulator/graphs/commit-activity)
 [![Tests](https://github.com/ArtemRivnyi/aws-s3-simulator/workflows/Test%20MinIO%20Setup/badge.svg)](https://github.com/ArtemRivnyi/aws-s3-simulator/actions)
+[![Last Commit](https://img.shields.io/github/last-commit/ArtemRivnyi/aws-s3-simulator?label=Last%20Update&style=flat-square )](https://github.com/ArtemRivnyi/aws-s3-simulator/commits/main )
+[![GitHub Stars](https://img.shields.io/github/stars/ArtemRivnyi/aws-s3-simulator?style=social )](https://github.com/ArtemRivnyi/aws-s3-simulator/stargazers )
 
 A lightweight and fully self-contained tool designed to emulate the **Amazon S3** service locally using **MinIO**. This project is ideal for developers and testers who need a fast, reliable, and isolated environment to validate S3 API logic without relying on external cloud resources.
 
