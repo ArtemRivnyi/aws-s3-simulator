@@ -5,6 +5,13 @@ import os
 from unittest import mock
 from api.app import create_app
 
+@pytest.fixture(autouse=True)
+def mock_env():
+    os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
+    os.environ['AWS_REGION'] = 'us-east-1'
+    os.environ['AWS_ENDPOINT_URL'] = '' 
+
 @pytest.fixture
 def s3_client():
     with mock_aws():
@@ -13,11 +20,6 @@ def s3_client():
 
 @pytest.fixture
 def app(s3_client):
-    os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
-    os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
-    os.environ['AWS_REGION'] = 'us-east-1'
-    os.environ['AWS_ENDPOINT_URL'] = '' 
-    
     # Mock PrometheusMetrics
     with mock.patch('api.app.PrometheusMetrics'):
         # We need to make sure the app uses the mocked s3 client
