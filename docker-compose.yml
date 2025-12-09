@@ -48,7 +48,7 @@ services:
     image: prom/prometheus
     container_name: aws-sim-prometheus
     ports:
-      - "9090:9090"
+      - "9091:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus

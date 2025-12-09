@@ -47,7 +47,7 @@ graph TD
    - **Web UI**: [http://localhost:5000](http://localhost:5000)
    - **API Docs**: [http://localhost:5000/api/v1](http://localhost:5000/api/v1)
    - **MinIO Console**: [http://localhost:9090](http://localhost:9090) (User: `admin`, Pass: `password123`)
-   - **Prometheus**: [http://localhost:9090](http://localhost:9090)
+   - **Prometheus**: [http://localhost:9091](http://localhost:9091)
 
 ## 📦 Client SDKs
 
