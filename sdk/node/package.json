@@ -1,0 +1,21 @@
+{
+    "name": "s3-simulator-client",
+    "version": "1.0.0",
+    "description": "A Node.js client for the AWS S3 Simulator API",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "s3",
+        "simulator",
+        "aws",
+        "client"
+    ],
+    "author": "Artem Rivnyi",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^1.6.0",
+        "form-data": "^4.0.0"
+    }
+}

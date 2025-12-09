@@ -1,11 +1,21 @@
 from flask import Flask, send_from_directory
 from prometheus_flask_exporter import PrometheusMetrics
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from .routes import api_bp
 import os
 
 def create_app():
     # Configure to serve static files from 'api/static'
     app = Flask(__name__, static_url_path='/static', static_folder='static')
+    
+    # Rate Limiting
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["200 per day", "50 per hour"],
+        storage_uri="memory://"
+    )
     
     # Initialize Prometheus metrics
     metrics = PrometheusMetrics(app)
@@ -19,6 +29,7 @@ def create_app():
         return send_from_directory(app.static_folder, 'index.html')
 
     @app.route('/health')
+    @limiter.exempt
     def health():
         return {'status': 'up'}
 
