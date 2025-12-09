@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: aws-s3-simulator
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT api.app:create_app()
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_ENDPOINT_URL
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1

@@ -15,7 +15,7 @@ services:
     volumes:
       - ${MINIO_DATA_PATH:-./minio_data}:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,6 +24,41 @@ services:
     networks:
       - s3-network
 
+  api:
+    build: .
+    container_name: aws-sim-api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=api.app:create_app
+      - FLASK_DEBUG=1
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-admin}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-password123}
+      - AWS_ENDPOINT_URL=http://minio:9000
+      - AWS_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+    depends_on:
+      minio:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - s3-network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: aws-sim-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - s3-network
+
 networks:
   s3-network:
     driver: bridge
+
+volumes:
+  minio_data:
+  prometheus_data:
