@@ -5,12 +5,19 @@ import os
 from unittest import mock
 from api.app import create_app
 
+from api.config import Config
+
 @pytest.fixture(autouse=True)
 def mock_env():
     os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
     os.environ['AWS_REGION'] = 'us-east-1'
     os.environ['AWS_ENDPOINT_URL'] = '' 
+    
+    # Patch Config.AWS_ENDPOINT_URL to None so boto3.client doesn't use the default localhost:9000
+    # This allows moto to intercept the requests
+    with mock.patch.object(Config, 'AWS_ENDPOINT_URL', None):
+        yield 
 
 @pytest.fixture
 def s3_client():

@@ -1,17 +1,48 @@
 services:
+  # MinIO Service (S3 Compatible Storage)
   - type: web
-    name: aws-s3-simulator
+    name: aws-s3-simulator-minio
+    image: minio/minio:latest
+    env: docker
+    plan: free
+    buildCommand: echo "No build command for MinIO"
+    startCommand: server /data --console-address ":9090"
+    envVars:
+      - key: MINIO_ROOT_USER
+        value: admin
+      - key: MINIO_ROOT_PASSWORD
+        generateValue: true
+      - key: MINIO_console_address
+        value: ":9090"
+    disk:
+      name: minio-data
+      mountPath: /data
+      sizeGB: 1
+
+  # Flask API Service
+  - type: web
+    name: aws-s3-simulator-api
     env: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn --bind 0.0.0.0:$PORT api.app:create_app()
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
       - key: AWS_ACCESS_KEY_ID
-        sync: false
+        fromService:
+          type: web
+          name: aws-s3-simulator-minio
+          envVarKey: MINIO_ROOT_USER
       - key: AWS_SECRET_ACCESS_KEY
-        sync: false
+        fromService:
+          type: web
+          name: aws-s3-simulator-minio
+          envVarKey: MINIO_ROOT_PASSWORD
       - key: AWS_ENDPOINT_URL
-        sync: false
+        fromService:
+          type: web
+          name: aws-s3-simulator-minio
+          property: hostport
       - key: AWS_REGION
         value: us-east-1
