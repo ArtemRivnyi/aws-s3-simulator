@@ -25,7 +25,7 @@ jobs:
         
     - name: Run Tests
       run: |
-        pytest --cov=api tests/
+        python -m pytest --cov=api tests/
         
   build:
     needs: test
