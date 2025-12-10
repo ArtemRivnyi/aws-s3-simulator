@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS S3 Simulator - MinIO Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold">🪣 AWS S3 Simulator</h1>
+                    <p class="text-sm text-blue-100">Local MinIO Manager</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="/docs/" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+                        📚 API Docs
+                    </a>
+                    <a href="/metrics" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+                        📊 Metrics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Status Banner -->
+    <div id="statusBanner" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 hidden">
+        <div class="container mx-auto">
+            <div class="flex items-center">
+                <span class="text-yellow-700" id="statusMessage"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- System Status -->
+        <section class="bg-white rounded-lg shadow-md p-6 mb-6 fade-in">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <span class="text-2xl mr-2">🔍</span>
+                System Status
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <div class="text-sm text-gray-600">Status</div>
+                    <div id="systemStatus" class="text-2xl font-bold text-green-600">●</div>
+                </div>
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <div class="text-sm text-gray-600">Mode</div>
+                    <div id="systemMode" class="text-2xl font-bold">-</div>
+                </div>
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <div class="text-sm text-gray-600">Buckets</div>
+                    <div id="bucketCount" class="text-2xl font-bold">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bucket Management -->
+        <section class="bg-white rounded-lg shadow-md p-6 mb-6 fade-in">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <span class="text-2xl mr-2">🪣</span>
+                Bucket Management
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Create Bucket -->
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h3 class="font-semibold mb-3 text-lg">Create New Bucket</h3>
+                    <input 
+                        type="text" 
+                        id="newBucketName" 
+                        class="border border-gray-300 p-3 rounded-lg w-full mb-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="my-new-bucket"
+                        onkeypress="if(event.key==='Enter') createBucket()"
+                    >
+                    <button 
+                        onclick="createBucket()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg w-full transition font-medium"
+                    >
+                        ➕ Create Bucket
+                    </button>
+                </div>
+                
+                <!-- Existing Buckets -->
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h3 class="font-semibold mb-3 text-lg">Existing Buckets</h3>
+                    <div id="bucketList" class="space-y-2 max-h-64 overflow-y-auto">
+                        <p class="text-gray-500 text-center py-4">Loading buckets...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="bg-white rounded-lg shadow-md p-6 fade-in">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <span class="text-2xl mr-2">⚡</span>
+                Quick Actions
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button 
+                    onclick="refreshBuckets()" 
+                    class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-6 py-3 rounded-lg transition font-medium"
+                >
+                    🔄 Refresh Buckets
+                </button>
+                <a 
+                    href="/docs/" 
+                    class="text-center border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-6 py-3 rounded-lg transition font-medium"
+                >
+                    📖 View API Docs
+                </a>
+                <button 
+                    onclick="checkHealth()" 
+                    class="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-6 py-3 rounded-lg transition font-medium"
+                >
+                    🏥 Health Check
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">AWS S3 Simulator - Local MinIO Development Tool</p>
+            <p class="text-sm text-gray-400">
+                Made by <a href="https://github.com/ArtemRivnyi" class="text-blue-400 hover:underline">Artem Rivnyi</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // API base URL
+        const API_BASE = '/api/v1';
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkHealth();
+            await loadBuckets();
+        });
+        
+        // Check system health
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                document.getElementById('systemStatus').textContent = data.status === 'healthy' ? '● Online' : '● Offline';
+                document.getElementById('systemStatus').className = data.status === 'healthy' ? 'text-2xl font-bold text-green-600' : 'text-2xl font-bold text-red-600';
+                document.getElementById('systemMode').textContent = data.mode.toUpperCase();
+                
+                if (data.mode === 'mock') {
+                    showStatus('⚠️ Running in MOCK mode - no real MinIO connection', 'warning');
+                }
+            } catch (error) {
+                console.error('Health check failed:', error);
+                document.getElementById('systemStatus').textContent = '● Error';
+                document.getElementById('systemStatus').className = 'text-2xl font-bold text-red-600';
+            }
+        }
+        
+        // Load buckets
+        async function loadBuckets() {
+            try {
+                const response = await fetch(`${API_BASE}/buckets/`);
+                const data = await response.json();
+                
+                const bucketList = document.getElementById('bucketList');
+                const bucketCount = document.getElementById('bucketCount');
+                
+                bucketList.innerHTML = '';
+                
+                if (data.buckets && data.buckets.length > 0) {
+                    bucketCount.textContent = data.buckets.length;
+                    
+                    data.buckets.forEach(bucket => {
+                        const div = document.createElement('div');
+                        div.className = 'flex justify-between items-center p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition';
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <span class="text-xl mr-2">📁</span>
+                                <span class="font-medium">${bucket}</span>
+                            </div>
+                            <button 
+                                onclick="deleteBucket('${bucket}')" 
+                                class="text-red-600 hover:text-red-800 px-3 py-1 rounded hover:bg-red-50 transition"
+                            >
+                                🗑️ Delete
+                            </button>
+                        `;
+                        bucketList.appendChild(div);
+                    });
+                } else {
+                    bucketList.innerHTML = '<p class="text-gray-500 text-center py-4">No buckets found. Create one!</p>';
+                    bucketCount.textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error loading buckets:', error);
+                showStatus('❌ Failed to load buckets: ' + error.message, 'error');
+            }
+        }
+        
+        // Create bucket
+        async function createBucket() {
+            const bucketName = document.getElementById('newBucketName').value.trim();
+            
+            if (!bucketName) {
+                showStatus('⚠️ Please enter a bucket name', 'warning');
+                return;
+            }
+            
+            // Validate bucket name
+            if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(bucketName)) {
+                showStatus('⚠️ Invalid bucket name. Use lowercase letters, numbers, and hyphens only', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/buckets/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bucket_name: bucketName })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showStatus(`✅ Bucket "${bucketName}" created successfully!`, 'success');
+                    document.getElementById('newBucketName').value = '';
+                    await loadBuckets();
+                } else {
+                    showStatus(`❌ Failed to create bucket: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error creating bucket:', error);
+                showStatus('❌ Failed to create bucket: ' + error.message, 'error');
+            }
+        }
+        
+        // Delete bucket
+        async function deleteBucket(bucketName) {
+            if (!confirm(`Are you sure you want to delete bucket "${bucketName}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/buckets/${bucketName}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showStatus(`✅ Bucket "${bucketName}" deleted successfully!`, 'success');
+                    await loadBuckets();
+                } else {
+                    showStatus(`❌ Failed to delete bucket: ${data.error || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting bucket:', error);
+                showStatus('❌ Failed to delete bucket: ' + error.message, 'error');
+            }
+        }
+        
+        // Refresh buckets
+        function refreshBuckets() {
+            showStatus('🔄 Refreshing buckets...', 'info');
+            loadBuckets();
+        }
+        
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const banner = document.getElementById('statusBanner');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            const colors = {
+                success: 'bg-green-50 border-green-400 text-green-700',
+                error: 'bg-red-50 border-red-400 text-red-700',
+                warning: 'bg-yellow-50 border-yellow-400 text-yellow-700',
+                info: 'bg-blue-50 border-blue-400 text-blue-700'
+            };
+            
+            banner.className = `${colors[type]} border-l-4 p-4`;
+            statusMessage.textContent = message;
+            banner.classList.remove('hidden');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

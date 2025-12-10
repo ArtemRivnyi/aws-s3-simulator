@@ -10,6 +10,9 @@
 README.md
 LICENSE
 *.md
+docs/
+examples/
+samples/
 
 # IDE files
 .vscode
@@ -21,9 +24,33 @@ LICENSE
 # Environment files
 .env
 .env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
 
 # Logs
 *.log
+logs/
 
 # OS files
 .DS_Store
@@ -33,9 +60,17 @@ Thumbs.db
 tests/
 *.test.sh
 
+# Scripts (bash utilities)
+scripts/
+
 # MinIO data (managed by volumes)
 minio_data/
 
 # Temporary files
 tmp/
 temp/
+
+# Docker
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.dev

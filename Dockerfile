@@ -6,6 +6,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends gcc
 
 COPY requirements.txt .
@@ -19,16 +20,32 @@ WORKDIR /app
 # Create a non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
+# Install curl for healthcheck
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy wheels and install dependencies
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
-
 RUN pip install --no-cache /wheels/*
 
-COPY . .
+# Copy application files
+COPY app.py .
+COPY gunicorn_config.py .
+COPY templates/ templates/
+COPY static/ static/ 
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
 
 USER appuser
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "api.app:create_app()"]
+EXPOSE 5000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
+# Run with gunicorn using config file
+CMD ["gunicorn", "--config", "gunicorn_config.py", "app:app"]
