@@ -22,8 +22,8 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Install curl for healthcheck
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get install -y --no-install-recommends curl && \
+  rm -rf /var/lib/apt/lists/*
 
 # Copy wheels and install dependencies
 COPY --from=builder /app/wheels /wheels
@@ -43,9 +43,8 @@ USER appuser
 
 EXPOSE 5000
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+# Healthcheck handled by platform
+# HEALTHCHECK removed to avoid port conflicts
 
 # Run with gunicorn using config file
 CMD ["gunicorn", "--config", "gunicorn_config.py", "app:app"]
