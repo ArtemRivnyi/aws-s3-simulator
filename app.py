@@ -189,19 +189,6 @@ def health():
     s3_client.list_buckets()
     status = 'healthy' if s3_client.connected else 'degraded'
     return jsonify({
-        'status': status,
-        'service': 'aws-s3-simulator',
-        'minio_connected': s3_client.connected
-    }), 200 if status == 'healthy' else 503
-
-# API Endpoints
-@ns_buckets.route('/')
-        return s3_client.delete_bucket(bucket_name)
-
-@ns_buckets.route('/<string:bucket_name>/objects')
-class ObjectList(Resource):
-    @ns_buckets.doc('list_objects')
-    def get(self, bucket_name):
         return s3_client.list_objects(bucket_name)
 
 @ns_upload.route('/')
