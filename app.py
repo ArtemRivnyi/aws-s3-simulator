@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import re
 from datetime import datetime
 from flask import Flask, jsonify, render_template, request, send_file
 from flask_restx import Api, Resource, fields
@@ -189,6 +190,44 @@ def health():
     s3_client.list_buckets()
     status = 'healthy' if s3_client.connected else 'degraded'
     return jsonify({
+        'status': status,
+        'service': 'aws-s3-simulator',
+        'minio_connected': s3_client.connected
+    }), 200 if status == 'healthy' else 503
+
+# API Endpoints
+@ns_buckets.route('/')
+class BucketList(Resource):
+    @ns_buckets.doc('list_buckets')
+    def get(self):
+        return s3_client.list_buckets()
+    
+    @ns_buckets.doc('create_bucket')
+    @ns_buckets.expect(bucket_model)
+    def post(self):
+        data = request.get_json()
+        bucket_name = data.get('bucket_name')
+        if not bucket_name:
+            return {'error': 'bucket_name is required'}, 400
+            
+        # Validation: 3-63 chars, lowercase, numbers, dots, hyphens
+        if not re.match(r'^[a-z0-9.-]{3,63}$', bucket_name):
+            return {
+                'error': 'Invalid bucket name. Rules: 3-63 characters, lowercase letters, numbers, dots (.), and hyphens (-) only.'
+            }, 400
+            
+        return s3_client.create_bucket(bucket_name)
+
+@ns_buckets.route('/<string:bucket_name>')
+class Bucket(Resource):
+    @ns_buckets.doc('delete_bucket')
+    def delete(self, bucket_name):
+        return s3_client.delete_bucket(bucket_name)
+
+@ns_buckets.route('/<string:bucket_name>/objects')
+class ObjectList(Resource):
+    @ns_buckets.doc('list_objects')
+    def get(self, bucket_name):
         return s3_client.list_objects(bucket_name)
 
 @ns_upload.route('/')
