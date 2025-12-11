@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 # Start MinIO in the background
 echo "Starting MinIO server..."
