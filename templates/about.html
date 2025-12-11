@@ -61,135 +61,34 @@
 
         [data-theme="dark"] h1,
         [data-theme="dark"] h2,
-        [data-theme="dark"] h3,
-        [data-theme="dark"] h4,
-        [data-theme="dark"] h5,
-        [data-theme="dark"] h6 {
-            color: #ffffff;
-        }
-    </style>
-</head>
+        </footer><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script> // Theme Logic
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/"><i class="fab fa-aws me-2"></i>S3 Simulator</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/about"><i
-                                class="fas fa-info-circle me-1"></i>About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/docs/" target="_blank"><i
-                                class="fas fa-book me-1"></i>API Docs</a></li>
-                    <li class="nav-item ms-2">
-                        <button class="btn btn-outline-light btn-sm" id="theme-toggle" onclick="toggleTheme()">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card p-4">
-                    <h1 class="mb-4 text-center">About AWS S3 Simulator</h1>
-
-                    <div class="mb-4">
-                        <h3><i class="fas fa-bullseye text-primary me-2"></i>Purpose</h3>
-                        <p>
-                            This project was built to simulate the core functionality of AWS S3 (Simple Storage Service)
-                            in a local, self-contained environment.
-                            It allows developers to prototype, test, and understand object storage concepts without
-                            incurring cloud costs or needing an internet connection.
-                        </p>
-                    </div>
-
-                    <div class="mb-4">
-                        <h3><i class="fas fa-tools text-success me-2"></i>What it does</h3>
-                        <p>
-                            The simulator provides a fully functional S3-compatible API powered by MinIO. It includes:
-                        </p>
-                        <ul>
-                            <li><strong>Bucket Management:</strong> Create, list, and delete buckets.</li>
-                            <li><strong>Object Storage:</strong> Upload, view, and manage files.</li>
-                            <li><strong>REST API:</strong> A documented API for programmatic interaction.</li>
-                            <li><strong>Web Dashboard:</strong> A user-friendly interface to visualize and manage your
-                                storage.</li>
-                        </ul>
-                    </div>
-
-                    <div class="mb-4">
-                        <h3><i class="fas fa-lightbulb text-warning me-2"></i>Why it's useful</h3>
-                        <p>
-                        <ul>
-                            <li><strong>Zero Cost:</strong> Run S3 locally for free.</li>
-                            <li><strong>Offline Development:</strong> Work on your projects anywhere.</li>
-                            <li><strong>Education:</strong> Great for learning how object storage works under the hood.
-                            </li>
-                            <li><strong>Testing:</strong> Ideal for integration tests in CI/CD pipelines.</li>
-                        </ul>
-                        </p>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="text-center">
-                        <h3>Built with ❤️ by Artem Rivnyi</h3>
-                        <p class="text-muted">Junior Technical Support / DevOps Enthusiast</p>
-                        <div class="d-flex justify-content-center gap-3 mt-3">
-                            <a href="mailto:artemrivnyi@outlook.com" class="btn btn-outline-primary"><i
-                                    class="fas fa-envelope me-2"></i>Email</a>
-                            <a href="https://www.linkedin.com/in/artem-rivnyi/" target="_blank"
-                                class="btn btn-outline-primary"><i class="fab fa-linkedin me-2"></i>LinkedIn</a>
-                            <a href="https://github.com/ArtemRivnyi" target="_blank" class="btn btn-outline-dark"><i
-                                    class="fab fa-github me-2"></i>GitHub</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div class="container">
-            <span class="text-muted">© 2025 AWS S3 Simulator. Built with ❤️ by Artem Rivnyi.</span>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Theme Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        });
+        document.addEventListener('DOMContentLoaded', ()=> {
+                const savedTheme=localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            });
 
         function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const currentTheme=document.documentElement.getAttribute('data-theme');
+            const newTheme=currentTheme==='dark' ? 'light': 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
         }
 
         function updateThemeIcon(theme) {
-            const btn = document.getElementById('theme-toggle');
-            if (theme === 'dark') {
-                btn.innerHTML = '<i class="fas fa-sun"></i>';
+            const btn=document.getElementById('theme-toggle');
+
+            if (theme==='dark') {
+                btn.innerHTML='<i class="fas fa-sun"></i>';
                 btn.classList.replace('btn-outline-light', 'btn-outline-warning');
-            } else {
-                btn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+
+            else {
+                btn.innerHTML='<i class="fas fa-moon"></i>';
                 btn.classList.replace('btn-outline-warning', 'btn-outline-light');
             }
         }
-    </script>
-</body>
 
-</html>
+        </script></body></html>
