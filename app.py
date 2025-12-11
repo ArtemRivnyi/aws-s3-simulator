@@ -196,24 +196,6 @@ def health():
 
 # API Endpoints
 @ns_buckets.route('/')
-class BucketList(Resource):
-    @ns_buckets.doc('list_buckets')
-    def get(self):
-        return s3_client.list_buckets()
-    
-    @ns_buckets.doc('create_bucket')
-    @ns_buckets.expect(bucket_model)
-    def post(self):
-        data = request.get_json()
-        bucket_name = data.get('bucket_name')
-        if not bucket_name:
-            return {'error': 'bucket_name is required'}, 400
-        return s3_client.create_bucket(bucket_name)
-
-@ns_buckets.route('/<string:bucket_name>')
-class Bucket(Resource):
-    @ns_buckets.doc('delete_bucket')
-    def delete(self, bucket_name):
         return s3_client.delete_bucket(bucket_name)
 
 @ns_buckets.route('/<string:bucket_name>/objects')
