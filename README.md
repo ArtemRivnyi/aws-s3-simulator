@@ -1,13 +1,24 @@
 # AWS S3 Simulator (MinIO + Flask)
 
+[![Live Demo](https://img.shields.io/badge/demo-live-success?style=flat-square)](https://aws-s3-simulator.onrender.com/)
+[![API Docs](https://img.shields.io/badge/API-documented-blue?style=flat-square)](https://aws-s3-simulator.onrender.com/docs/)
 ![Render Deployment](https://img.shields.io/badge/Render-Deployed-success)
 ![Python](https://img.shields.io/badge/Python-3.9+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 A lightweight, self-contained AWS S3 compatible object storage simulator built with MinIO and Flask. Designed for rapid prototyping, testing, and portfolio demonstration.
 
-## 🚀 Live Demo
-**URL**: [https://aws-s3-simulator.onrender.com/](https://aws-s3-simulator.onrender.com/)
+## 🌐 Live Demo
+- **Application**: https://aws-s3-simulator.onrender.com/
+- **API Docs**: https://aws-s3-simulator.onrender.com/docs/
+- **Metrics**: https://aws-s3-simulator.onrender.com/metrics
+- **Health Check**: https://aws-s3-simulator.onrender.com/health
+
+### Try it out:
+1. Open the dashboard
+2. Create a new bucket
+3. Upload files
+4. Monitor real-time statistics
 
 ## ✨ Features
 - **S3 Compatible API**: Powered by MinIO, fully compatible with AWS SDKs.
@@ -23,8 +34,12 @@ A lightweight, self-contained AWS S3 compatible object storage simulator built w
 - **Deployment**: Docker, Render.com
 
 ## 📸 Screenshots
+
 ### Dashboard
-*(Add screenshot here)*
+![Dashboard](docs/screenshots/dashboard.png)
+
+### API Documentation
+![API Docs](docs/screenshots/api-docs.png)
 
 ## 🚀 Quick Start
 
