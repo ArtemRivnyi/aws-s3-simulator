@@ -20,10 +20,15 @@ WORKDIR /app
 # Create a non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Install curl for healthcheck
+# Install curl for healthcheck and wget for downloading minio
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends curl && \
+  apt-get install -y --no-install-recommends curl wget && \
   rm -rf /var/lib/apt/lists/*
+
+# Install MinIO
+RUN wget https://dl.min.io/server/minio/release/linux-amd64/minio \
+    && chmod +x minio \
+    && mv minio /usr/local/bin/
 
 # Copy wheels and install dependencies
 COPY --from=builder /app/wheels /wheels
@@ -34,17 +39,19 @@ RUN pip install --no-cache /wheels/*
 COPY app.py .
 COPY gunicorn_config.py .
 COPY templates/ templates/
-COPY static/ static/ 
+COPY static/ static/
+COPY scripts/ scripts/
+
+# Make start script executable
+RUN chmod +x scripts/start.sh
 
 # Change ownership to non-root user
-RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser /app /usr/local/bin/minio
 
 USER appuser
 
-EXPOSE 5000
+# Expose ports: 5000 (Flask), 9000 (MinIO API), 9001 (MinIO Console)
+EXPOSE 5000 9000 9001
 
-# Healthcheck handled by platform
-# HEALTHCHECK removed to avoid port conflicts
-
-# Run with gunicorn using config file
-CMD ["gunicorn", "--config", "gunicorn_config.py", "app:app"]
+# Run with start script
+ENTRYPOINT ["./scripts/start.sh"]

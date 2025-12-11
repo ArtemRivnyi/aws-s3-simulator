@@ -1,9 +1,14 @@
 import os
-from flask import Flask, jsonify, render_template, request
+import json
+import logging
+from datetime import datetime
+from flask import Flask, jsonify, render_template, request, send_file
 from flask_restx import Api, Resource, fields
 from prometheus_flask_exporter import PrometheusMetrics
 from werkzeug.exceptions import BadRequest, NotFound
-import logging
+from werkzeug.utils import secure_filename
+from minio import Minio
+from minio.error import S3Error
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -13,6 +18,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['FLASK_ENV'] = os.getenv('FLASK_ENV', 'development')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 
 # Prometheus metrics
 metrics = PrometheusMetrics(app)
@@ -30,8 +36,10 @@ api = Api(
 # Namespaces
 ns_buckets = api.namespace('buckets', description='Bucket operations')
 ns_health = api.namespace('health', description='Health checks')
+ns_upload = api.namespace('upload', description='File upload operations')
+ns_stats = api.namespace('stats', description='Usage statistics')
 
-# API Models for Swagger
+# API Models
 bucket_model = api.model('Bucket', {
     'bucket_name': fields.String(required=True, description='Bucket name', example='my-test-bucket')
 })
@@ -40,200 +48,206 @@ bucket_response = api.model('BucketResponse', {
     'buckets': fields.List(fields.String, description='List of bucket names')
 })
 
-# Mock mode flag
-MOCK_MODE = os.getenv('MOCK_MODE', 'false').lower() == 'true'
-MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT', 'http://localhost:9000')
+# MinIO Configuration
+MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+MINIO_ACCESS_KEY = os.getenv('MINIO_ROOT_USER', 'minioadmin')
+MINIO_SECRET_KEY = os.getenv('MINIO_ROOT_PASSWORD', 'minioadmin')
+SECURE = os.getenv('MINIO_SECURE', 'false').lower() == 'true'
 
-# S3 Client wrapper
+# S3 Client wrapper using MinIO SDK
 class S3Client:
     def __init__(self):
-        self.mock_mode = MOCK_MODE
-        self.mock_buckets = ['demo-bucket', 'test-bucket']
-        
-        if not self.mock_mode:
-            try:
-                import boto3
-                from botocore.exceptions import ClientError
-                
-                self.client = boto3.client(
-                    's3',
-                    endpoint_url=MINIO_ENDPOINT,
-                    aws_access_key_id=os.getenv('MINIO_ACCESS_KEY', 'admin'),
-                    aws_secret_access_key=os.getenv('MINIO_SECRET_KEY', 'password123'),
-                    region_name='us-east-1'
-                )
-                logger.info(f"S3 Client initialized with MinIO at {MINIO_ENDPOINT}")
-            except Exception as e:
-                logger.warning(f"Failed to connect to MinIO: {e}. Falling back to mock mode.")
-                self.mock_mode = True
-        else:
-            logger.info("Running in MOCK mode - no real MinIO connection")
-    
+        self.client = None
+        self.connected = False
+        self.connect()
+
+    def connect(self):
+        try:
+            # Clean up endpoint for MinIO client (remove http:// or https://)
+            endpoint = MINIO_ENDPOINT.replace('http://', '').replace('https://', '')
+            
+            self.client = Minio(
+                endpoint,
+                access_key=MINIO_ACCESS_KEY,
+                secret_key=MINIO_SECRET_KEY,
+                secure=SECURE
+            )
+            # Test connection
+            self.client.list_buckets()
+            self.connected = True
+            logger.info(f"Successfully connected to MinIO at {endpoint}")
+        except Exception as e:
+            logger.error(f"Failed to connect to MinIO: {e}")
+            self.connected = False
+
     def list_buckets(self):
-        """List all buckets"""
-        if self.mock_mode:
-            return {'buckets': self.mock_buckets, 'mode': 'mock'}
+        if not self.connected: self.connect()
+        if not self.connected: return {'error': 'Not connected to MinIO', 'buckets': []}
         
         try:
-            response = self.client.list_buckets()
-            bucket_names = [b['Name'] for b in response.get('Buckets', [])]
-            return {'buckets': bucket_names, 'mode': 'live'}
+            buckets = self.client.list_buckets()
+            return {'buckets': [b.name for b in buckets], 'mode': 'live'}
         except Exception as e:
             logger.error(f"Error listing buckets: {e}")
             return {'error': str(e), 'buckets': []}
-    
+
     def create_bucket(self, bucket_name):
-        """Create a new bucket"""
-        if self.mock_mode:
-            if bucket_name not in self.mock_buckets:
-                self.mock_buckets.append(bucket_name)
-            return {'success': True, 'bucket': bucket_name, 'mode': 'mock'}
-        
+        if not self.connected: self.connect()
+        if not self.connected: return {'success': False, 'error': 'Not connected to MinIO'}
+
         try:
-            self.client.create_bucket(Bucket=bucket_name)
-            return {'success': True, 'bucket': bucket_name, 'mode': 'live'}
+            if not self.client.bucket_exists(bucket_name):
+                self.client.make_bucket(bucket_name)
+                return {'success': True, 'bucket': bucket_name}
+            return {'success': False, 'error': 'Bucket already exists'}
         except Exception as e:
             logger.error(f"Error creating bucket {bucket_name}: {e}")
             return {'success': False, 'error': str(e)}
-    
+
     def delete_bucket(self, bucket_name):
-        """Delete a bucket"""
-        if self.mock_mode:
-            if bucket_name in self.mock_buckets:
-                self.mock_buckets.remove(bucket_name)
-            return {'success': True, 'bucket': bucket_name, 'mode': 'mock'}
+        if not self.connected: self.connect()
         
         try:
-            self.client.delete_bucket(Bucket=bucket_name)
-            return {'success': True, 'bucket': bucket_name, 'mode': 'live'}
+            self.client.remove_bucket(bucket_name)
+            return {'success': True, 'bucket': bucket_name}
         except Exception as e:
             logger.error(f"Error deleting bucket {bucket_name}: {e}")
             return {'success': False, 'error': str(e)}
-    
+
     def list_objects(self, bucket_name):
-        """List objects in bucket"""
-        if self.mock_mode:
-            return {
-                'objects': ['sample-file-1.txt', 'sample-file-2.jpg'],
-                'bucket': bucket_name,
-                'mode': 'mock'
-            }
+        if not self.connected: self.connect()
         
         try:
-            response = self.client.list_objects_v2(Bucket=bucket_name)
-            objects = [obj['Key'] for obj in response.get('Contents', [])]
-            return {'objects': objects, 'bucket': bucket_name, 'mode': 'live'}
+            objects = self.client.list_objects(bucket_name)
+            obj_list = []
+            for obj in objects:
+                obj_list.append({
+                    'name': obj.object_name,
+                    'size': obj.size,
+                    'last_modified': obj.last_modified.isoformat() if obj.last_modified else None
+                })
+            return {'objects': obj_list, 'bucket': bucket_name}
         except Exception as e:
             logger.error(f"Error listing objects in {bucket_name}: {e}")
             return {'error': str(e), 'objects': []}
 
-# Initialize S3 client
+    def upload_file(self, bucket_name, file_obj, object_name, length):
+        if not self.connected: self.connect()
+        
+        try:
+            # Ensure bucket exists
+            if not self.client.bucket_exists(bucket_name):
+                self.client.make_bucket(bucket_name)
+            
+            self.client.put_object(
+                bucket_name,
+                object_name,
+                file_obj,
+                length
+            )
+            return {'success': True, 'bucket': bucket_name, 'object': object_name}
+        except Exception as e:
+            logger.error(f"Error uploading file: {e}")
+            return {'success': False, 'error': str(e)}
+
+    def get_stats(self):
+        if not self.connected: self.connect()
+        
+        try:
+            buckets = self.client.list_buckets()
+            total_buckets = len(buckets)
+            total_objects = 0
+            total_size = 0
+            
+            for b in buckets:
+                objects = self.client.list_objects(b.name, recursive=True)
+                for obj in objects:
+                    total_objects += 1
+                    total_size += obj.size
+            
+            return {
+                'buckets': total_buckets,
+                'objects': total_objects,
+                'storage_used_bytes': total_size,
+                'status': 'healthy' if self.connected else 'unhealthy'
+            }
+        except Exception as e:
+            logger.error(f"Error getting stats: {e}")
+            return {'error': str(e)}
+
 s3_client = S3Client()
 
 # Routes
 @app.route('/')
 def index():
-    """Main page"""
-    return render_template('index.html') if os.path.exists('templates/index.html') else jsonify({
-        'message': 'AWS S3 Simulator API',
-        'version': '1.0.0',
-        'mode': 'mock' if MOCK_MODE else 'live',
-        'endpoints': {
-            'health': '/health',
-            'api_docs': '/docs/',
-            'metrics': '/metrics',
-            'buckets': '/api/v1/buckets'
-        }
-    })
+    return render_template('index.html')
 
 @app.route('/health')
 def health():
-    """Basic health check"""
+    """Basic health check for Render"""
+    # Check if MinIO is reachable
+    s3_client.list_buckets()
+    status = 'healthy' if s3_client.connected else 'degraded'
     return jsonify({
-        'status': 'healthy',
+        'status': status,
         'service': 'aws-s3-simulator',
-        'mode': 'mock' if s3_client.mock_mode else 'live',
-        'minio_endpoint': MINIO_ENDPOINT if not s3_client.mock_mode else 'N/A'
-    }), 200
+        'minio_connected': s3_client.connected
+    }), 200 if status == 'healthy' else 503
 
 # API Endpoints
 @ns_buckets.route('/')
 class BucketList(Resource):
     @ns_buckets.doc('list_buckets')
-    @ns_buckets.marshal_with(bucket_response)
     def get(self):
-        """List all S3 buckets"""
-        result = s3_client.list_buckets()
-        return result, 200
+        return s3_client.list_buckets()
     
     @ns_buckets.doc('create_bucket')
     @ns_buckets.expect(bucket_model)
     def post(self):
-        """Create a new bucket"""
         data = request.get_json()
         bucket_name = data.get('bucket_name')
-        
         if not bucket_name:
             return {'error': 'bucket_name is required'}, 400
-        
-        result = s3_client.create_bucket(bucket_name)
-        return result, 201 if result.get('success') else 400
+        return s3_client.create_bucket(bucket_name)
 
 @ns_buckets.route('/<string:bucket_name>')
 class Bucket(Resource):
     @ns_buckets.doc('delete_bucket')
     def delete(self, bucket_name):
-        """Delete a bucket"""
-        result = s3_client.delete_bucket(bucket_name)
-        return result, 200 if result.get('success') else 400
+        return s3_client.delete_bucket(bucket_name)
 
 @ns_buckets.route('/<string:bucket_name>/objects')
 class ObjectList(Resource):
     @ns_buckets.doc('list_objects')
     def get(self, bucket_name):
-        """List objects in bucket"""
-        result = s3_client.list_objects(bucket_name)
-        return result, 200
+        return s3_client.list_objects(bucket_name)
 
-@ns_health.route('/')
-class HealthDetailed(Resource):
-    @ns_health.doc('health_detailed')
-    def get(self):
-        """Detailed health check with component status"""
-        minio_status = 'healthy' if not s3_client.mock_mode else 'mock'
+@ns_upload.route('/')
+class Upload(Resource):
+    @ns_upload.doc('upload_file')
+    def post(self):
+        if 'file' not in request.files:
+            return {'error': 'No file part'}, 400
+        file = request.files['file']
+        if file.filename == '':
+            return {'error': 'No selected file'}, 400
         
-        return {
-            'status': 'healthy',
-            'service': 'aws-s3-simulator',
-            'version': '1.0.0',
-            'components': {
-                'api': 'healthy',
-                'minio': minio_status,
-                'mode': 'mock' if s3_client.mock_mode else 'live'
-            },
-            'timestamp': os.popen('date -u +"%Y-%m-%dT%H:%M:%SZ"').read().strip()
-        }, 200
+        bucket_name = request.form.get('bucket', 'default')
+        object_name = secure_filename(file.filename)
+        
+        # Get file size
+        file.seek(0, os.SEEK_END)
+        size = file.tell()
+        file.seek(0)
+        
+        return s3_client.upload_file(bucket_name, file, object_name, size)
 
-# Error handlers
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': 'Not found', 'message': str(error)}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    logger.error(f"Internal server error: {error}")
-    return jsonify({'error': 'Internal server error', 'message': str(error)}), 500
-
-@app.errorhandler(BadRequest)
-def bad_request(error):
-    return jsonify({'error': 'Bad request', 'message': str(error)}), 400
+@ns_stats.route('/')
+class Stats(Resource):
+    @ns_stats.doc('get_stats')
+    def get(self):
+        return s3_client.get_stats()
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    debug = os.getenv('FLASK_ENV') == 'development'
-    
-    logger.info(f"Starting AWS S3 Simulator on port {port}")
-    logger.info(f"Mode: {'MOCK' if s3_client.mock_mode else 'LIVE'}")
-    logger.info(f"Debug: {debug}")
-    
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    app.run(host='0.0.0.0', port=port)

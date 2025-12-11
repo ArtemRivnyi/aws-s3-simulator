@@ -1,96 +1,80 @@
-# AWS S3 Simulator ☁️
+# AWS S3 Simulator (MinIO + Flask)
 
-![CI Status](https://github.com/yourusername/aws-s3-simulator/actions/workflows/ci.yml/badge.svg)
-![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)
+![Render Deployment](https://img.shields.io/badge/Render-Deployed-success)
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)
 
-A production-ready, local AWS S3 Simulator built with Flask, MinIO, and Docker. Perfect for testing S3 integrations, learning DevOps practices, and portfolio demonstration.
+A lightweight, self-contained AWS S3 compatible object storage simulator built with MinIO and Flask. Designed for rapid prototyping, testing, and portfolio demonstration.
 
-## 🚀 Features
+## 🚀 Live Demo
+**URL**: [https://aws-s3-simulator.onrender.com/](https://aws-s3-simulator.onrender.com/)
 
-- **S3 Compatible API**: Built on top of MinIO, supporting standard S3 operations.
-- **Web Interface**: Modern, responsive UI built with Tailwind CSS for managing buckets and objects.
-- **DevOps Ready**: Dockerized with multi-stage builds, non-root user security, and Prometheus monitoring.
-- **Client SDKs**: Ready-to-use Python and Node.js clients.
-- **Robust Testing**: Comprehensive unit tests with >80% coverage.
+## ✨ Features
+- **S3 Compatible API**: Powered by MinIO, fully compatible with AWS SDKs.
+- **Web Dashboard**: Modern UI to manage buckets and files.
+- **Single Container**: Runs both MinIO and API in one Docker container.
+- **REST API**: Endpoints for stats, health checks, and management.
+- **Prometheus Metrics**: Built-in metrics for monitoring.
+
+## 🛠 Tech Stack
+- **Backend**: Python 3.9, Flask, MinIO Python SDK
+- **Storage Engine**: MinIO Server
+- **Frontend**: Bootstrap 5, Vanilla JS
+- **Deployment**: Docker, Render.com
+
+## 📸 Screenshots
+### Dashboard
+*(Add screenshot here)*
+
+## 🚀 Quick Start
+
+### Local Development (Docker)
+```bash
+# 1. Clone repository
+git clone https://github.com/ArtemRivnyi/aws-s3-simulator.git
+cd aws-s3-simulator
+
+# 2. Build and Run
+docker build -t aws-s3-sim .
+docker run -p 5000:5000 -p 9000:9000 -p 9001:9001 aws-s3-sim
+```
+Access the dashboard at `http://localhost:5000`.
+
+### Local Development (Manual)
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Start MinIO (requires MinIO binary)
+minio server ./data --console-address ":9001" &
+
+# 3. Start Flask App
+python app.py
+```
+
+## 📚 API Documentation
+Swagger documentation is available at `/docs/`.
+
+### Key Endpoints
+- `GET /api/v1/buckets/` - List buckets
+- `POST /api/v1/buckets/` - Create bucket
+- `POST /api/v1/upload/` - Upload file
+- `GET /api/v1/stats/` - Usage statistics
+- `GET /health` - Health check
 
 ## 🏗 Architecture
-
-```mermaid
-graph TD
-    Client[Client / SDK] -->|HTTP| LB[Nginx / Render LB]
-    LB -->|HTTP| API[Flask API]
-    API -->|S3 Protocol| MinIO[MinIO Storage]
-    API -->|Metrics| Prometheus[Prometheus]
-    Browser[Web Browser] -->|HTTP| API
-```
-
-## 🛠 Quick Start
-
-### Prerequisites
-- Docker & Docker Compose
-
-### Run Locally
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/aws-s3-simulator.git
-   cd aws-s3-simulator
-   ```
-
-2. **Start the stack**
-   ```bash
-   docker-compose up --build
-   ```
-
-3. **Access the services**
-   - **Web UI**: [http://localhost:5000](http://localhost:5000)
-   - **API Docs**: [http://localhost:5000/api/v1](http://localhost:5000/api/v1)
-   - **MinIO Console**: [http://localhost:9090](http://localhost:9090) (User: `admin`, Pass: `password123`)
-   - **Prometheus**: [http://localhost:9091](http://localhost:9091)
-
-## 📦 Client SDKs
-
-### Python
-```bash
-pip install ./sdk/python
-```
-```python
-from s3_simulator_client import S3SimulatorClient
-
-client = S3SimulatorClient(base_url='http://localhost:5000/api/v1/s3')
-client.create_bucket('my-bucket')
-client.upload_file('my-bucket', 'data.txt')
-```
-
-### Node.js
-```bash
-cd sdk/node && npm install
-```
-```javascript
-const S3SimulatorClient = require('./sdk/node');
-const client = new S3SimulatorClient('http://localhost:5000/api/v1/s3');
-
-await client.createBucket('my-bucket');
-```
-
-## 🚀 Deployment (Render)
-
-This project is configured for auto-deployment on Render.
-
-1. Fork this repo.
-2. Create a new **Blueprint Instance** on Render.
-3. Connect your repo.
-4. Provide the `AWS_ENDPOINT_URL` (pointing to your MinIO/S3 instance).
-
-## 🧪 Testing
-
-Run the test suite with coverage:
-```bash
-pip install -r requirements.txt
-python -m pytest --cov=api tests/
-```
+The application runs as a single Docker container on Render.
+- **Entrypoint**: `scripts/start.sh` starts both processes.
+- **MinIO**: Listens on 9000 (API) and 9001 (Console).
+- **Flask**: Listens on 5000 (Web UI & API wrapper).
 
 ## 📝 License
+MIT License
 
-MIT License. See [LICENSE](LICENSE) for details.
+## 🧰 Maintainer
+**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
+
+- 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)
+- 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)
+- 🌐 [Personal Projects](https://github.com/ArtemRivnyi?tab=repositories)
+- 💻 [GitHub](https://github.com/ArtemRivnyi)
