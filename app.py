@@ -183,6 +183,10 @@ s3_client = S3Client()
 def index():
     return render_template('index.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/health')
 def health():
     """Basic health check for Render"""
