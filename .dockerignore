@@ -61,7 +61,7 @@ tests/
 *.test.sh
 
 # Scripts (bash utilities)
-scripts/
+
 
 # MinIO data (managed by volumes)
 minio_data/
