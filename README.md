@@ -69,7 +69,7 @@ The application runs as a single Docker container on Render.
 - **Flask**: Listens on 5000 (Web UI & API wrapper).
 
 ## 📝 License
-MIT License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🧰 Maintainer
 **Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
