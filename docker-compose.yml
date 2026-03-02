@@ -55,6 +55,21 @@ services:
     networks:
       - s3-network
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aws-sim-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - s3-network
+
 networks:
   s3-network:
     driver: bridge
@@ -62,3 +77,4 @@ networks:
 volumes:
   minio_data:
   prometheus_data:
+  grafana_data:
