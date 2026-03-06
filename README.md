@@ -67,6 +67,18 @@ minio server ./data --console-address ":9001" &
 python app.py
 ```
 
+## 📊 Advanced Observability (Loki + Promtail + Grafana)
+This project features a fully configured logging and metrics observability stack:
+
+```bash
+docker-compose up -d
+```
+- **Grafana Dashboard**: `http://localhost:3000` (User: `admin`, Pass: `admin`)
+- **Prometheus**: `http://localhost:9091`
+- **Loki**: `http://localhost:3100`
+
+The system collects Flask HTTP Metrics (RPS, Latency) via Prometheus and Docker Container logs via Promtail, aggregating them into a unified **"AWS S3 Simulator Observability"** autoprovisioned dashboard.
+
 ## 📚 API Documentation
 Swagger documentation is available at `/docs/`.
 
