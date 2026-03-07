@@ -7,7 +7,7 @@ services:
     command: server /data --console-address ":9090"
     ports:
       - "${MINIO_API_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9090}:9090"
+      - "${MINIO_CONSOLE_PORT:-9092}:9090"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-password123}
@@ -23,6 +23,12 @@ services:
     restart: unless-stopped
     networks:
       - s3-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
   api:
     build: .
@@ -39,10 +45,20 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+      prometheus:
+        condition: service_started
+      loki:
+        condition: service_started
     volumes:
       - .:/app
     networks:
       - s3-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
   prometheus:
     image: prom/prometheus
@@ -65,10 +81,45 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
+      - loki
     networks:
       - s3-network
+
+  loki:
+    image: grafana/loki:latest
+    container_name: aws-sim-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - s3-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: aws-sim-promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    depends_on:
+      - loki
+    networks:
+      - s3-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
 networks:
   s3-network:
@@ -78,3 +129,4 @@ volumes:
   minio_data:
   prometheus_data:
   grafana_data:
+  loki_data:
