@@ -95,7 +95,21 @@ Swagger documentation is available at `/docs/`.
 - `GET /health` - Health check
 
 ## 🏗 Architecture
-The application runs as a single Docker container on Render.
+The application runs as a single Docker container integrating storage, web services, and observability.
+
+```mermaid
+graph TD
+    Client[Client Browser/API] -->|HTTP| Flask[Flask Web App]
+    Flask -->|S3 Protocol| MinIO[MinIO Storage]
+    
+    subgraph "Observability Stack"
+        Promtail[Promtail] -->|Docker Logs| Loki[Loki]
+        Flask -->|Metrics| Prometheus[Prometheus]
+        Prometheus --> Grafana[Grafana]
+        Loki --> Grafana
+    end
+```
+
 - **Entrypoint**: `scripts/start.sh` starts both processes.
 - **MinIO**: Listens on 9000 (API) and 9001 (Console).
 - **Flask**: Listens on 5000 (Web UI & API wrapper).
