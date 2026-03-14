@@ -1,10 +1,15 @@
 # AWS S3 Simulator (MinIO + Flask)
 
-[![Live Demo](https://img.shields.io/badge/demo-live-success?style=flat-square)](https://aws-s3-simulator.onrender.com/)
-[![API Docs](https://img.shields.io/badge/API-documented-blue?style=flat-square)](https://aws-s3-simulator.onrender.com/docs/)
-![Render Deployment](https://img.shields.io/badge/Render-Deployed-success)
-![Python](https://img.shields.io/badge/Python-3.9+-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+[![Live Demo](https://img.shields.io/badge/demo-live-success?style=for-the-badge)](https://aws-s3-simulator.onrender.com/)
+[![API Docs](https://img.shields.io/badge/API-documented-blue?style=for-the-badge)](https://aws-s3-simulator.onrender.com/docs/)
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" />
+  <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" />
+</p>
 
 A lightweight, self-contained AWS S3 compatible object storage simulator built with MinIO and Flask. Designed for rapid prototyping, testing, and portfolio demonstration.
 
