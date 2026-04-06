@@ -118,7 +118,7 @@ graph TD
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🧰 Maintainer
-**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
+**Artem Rivnyi** — DevOps Engineer
 
 - 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)
 - 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)
