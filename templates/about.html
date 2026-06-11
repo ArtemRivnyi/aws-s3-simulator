@@ -89,7 +89,103 @@
             color: #212529;
         }
     </style>
-</head>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body, html {
+            background-color: transparent !important;
+            color: #f1f5f9 !important;
+            font-family: 'Space Grotesk', sans-serif !important;
+        }
+        /* Navbar */
+        .navbar {
+            background: rgba(10, 10, 15, 0.6) !important;
+            backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2) !important;
+        }
+        .navbar-brand, .nav-link { color: #f1f5f9 !important; }
+        .nav-link:hover { color: #667eea !important; }
+        
+        /* Cards */
+        .card {
+            background: rgba(15, 23, 42, 0.4) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(102, 126, 234, 0.2) !important;
+            color: #f1f5f9 !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+        }
+        .card-header {
+            background: rgba(15, 23, 42, 0.6) !important;
+            color: #f1f5f9 !important;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2) !important;
+        }
+        
+        /* Modals */
+        .modal-content {
+            background: rgba(15, 23, 42, 0.9) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(102, 126, 234, 0.2) !important;
+            color: #f1f5f9 !important;
+        }
+        .modal-header, .modal-footer {
+            border-color: rgba(102, 126, 234, 0.2) !important;
+        }
+        
+        /* Tables */
+        .table { color: #f1f5f9 !important; }
+        .table-light, .table-light th {
+            background: rgba(10, 10, 15, 0.6) !important;
+            color: #f1f5f9 !important;
+            border-color: rgba(102, 126, 234, 0.2) !important;
+        }
+        .table td { border-color: rgba(102, 126, 234, 0.1) !important; }
+        .table-hover tbody tr:hover { background: rgba(102, 126, 234, 0.1) !important; color: #f1f5f9 !important; }
+        
+        /* Inputs & Lists */
+        .list-group-item {
+            background: rgba(15, 23, 42, 0.4) !important;
+            color: #f1f5f9 !important;
+            border-color: rgba(102, 126, 234, 0.2) !important;
+        }
+        .list-group-item:hover { background: rgba(102, 126, 234, 0.1) !important; color: white !important;}
+        .form-control {
+            background: rgba(10, 15, 30, 0.6) !important;
+            border: 1px solid rgba(102, 126, 234, 0.3) !important;
+            color: white !important;
+        }
+        .form-control:focus {
+            background: rgba(10, 15, 30, 0.6) !important;
+            border-color: #667eea !important;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3) !important;
+            color: white !important;
+        }
+        .drop-zone {
+            background: rgba(10, 15, 30, 0.6) !important;
+            border: 2px dashed rgba(102, 126, 234, 0.3) !important;
+        }
+        
+        /* Typography overrides */
+        h1, h2, h3, h4, h5, h6, .card-title, .modal-title, .text-muted, .text-secondary {
+            color: #f1f5f9 !important;
+        }
+        
+        /* Buttons */
+        .btn-primary, .btn-success {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+        }
+        .btn-primary:hover, .btn-success:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+        }
+        
+        /* Footer */
+        .footer { background: transparent !important; border: none !important;}
+        
+        /* Remove Theme Toggle Logic */
+        #theme-toggle { display: none !important; }
+    </style>
+    </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -203,6 +299,45 @@
             }
         }
     </script>
+
+  <canvas id="matrix-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; background-color: #050505;"></canvas>
+  <script>
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let columns;
+    const charSize = 14;
+    let drops = [];
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      columns = Math.floor(width / charSize);
+      drops = [];
+      for (let i = 0; i < columns; i++) {
+        drops[i] = Math.random() * -100;
+      }
+    }
+    function draw() {
+      ctx.fillStyle = 'rgba(5, 5, 5, 0.1)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(102, 126, 234, 0.25)'; 
+      ctx.font = charSize + 'px monospace';
+      for (let i = 0; i < drops.length; i++) {
+        const text = String.fromCharCode(Math.random() * 128);
+        const x = i * charSize;
+        const y = drops[i] * charSize;
+        ctx.fillText(text, x, y);
+        if (y > height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    setInterval(draw, 33);
+  </script>
 </body>
+
 
 </html>
