@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: aws-s3-simulator
     command: server /data --console-address ":9090"
     ports:
