@@ -314,6 +314,71 @@
         
         /* Remove Theme Toggle Logic */
         #theme-toggle { display: none !important; }
+
+        /* Responsive Media Queries */
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .navbar-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+                margin-top: 8px;
+            }
+            .navbar-nav .nav-item {
+                margin-left: 0 !important;
+            }
+            .stat-card {
+                margin-bottom: 12px;
+            }
+            .drop-zone {
+                padding: 1.25rem 1rem;
+            }
+            .table th, .table td {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.88rem;
+            }
+            .table th.ps-4, .table td.ps-4 {
+                padding-left: 0.75rem !important;
+            }
+            .table th.pe-4, .table td.pe-4 {
+                padding-right: 0.75rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            .card-header {
+                padding: 0.75rem 1rem;
+                font-size: 0.95rem;
+            }
+            .stat-card .card-body {
+                padding: 0.85rem;
+            }
+            .icon-box {
+                width: 40px;
+                height: 40px;
+            }
+            .stat-card h3 {
+                font-size: 1.25rem;
+            }
+            .drop-zone {
+                padding: 1rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.78rem;
+            }
+            .table-responsive {
+                border-radius: 6px;
+            }
+        }
     </style>
     </head>
 
