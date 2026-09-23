@@ -26,7 +26,7 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 # Install MinIO binary from official Quay MinIO image
-COPY --from=quay.io/minio/minio:latest /opt/bin/minio /usr/local/bin/minio
+COPY --from=quay.io/minio/minio:latest /usr/bin/minio /usr/local/bin/minio
 RUN chmod +x /usr/local/bin/minio
 
 # Copy wheels and install dependencies
