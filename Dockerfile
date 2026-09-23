@@ -20,15 +20,14 @@ WORKDIR /app
 # Create a non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Install curl for healthcheck and wget for downloading minio
+# Install curl for healthcheck
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends curl wget && \
+  apt-get install -y --no-install-recommends curl && \
   rm -rf /var/lib/apt/lists/*
 
-# Install MinIO
-RUN wget https://dl.min.io/server/minio/release/linux-amd64/minio \
-  && chmod +x minio \
-  && mv minio /usr/local/bin/
+# Install MinIO binary from official MinIO image
+COPY --from=minio/minio:latest /opt/bin/minio /usr/local/bin/minio
+RUN chmod +x /usr/local/bin/minio
 
 # Copy wheels and install dependencies
 COPY --from=builder /app/wheels /wheels
